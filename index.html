@@ -1,0 +1,579 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Monster Jackpot</title>
+<style>
+:root{--bg:#090711;--panel:#151122;--purple:#9b5cff;--pink:#ff4fc8;--text:#f7f2ff;--muted:#a99dbb;--green:#54f0a2;--gold:#ffd66b}
+*{box-sizing:border-box}
+body{margin:0;background:radial-gradient(ellipse at top,#211039,#0b0813 55%,#07060b);color:var(--text);font-family:Arial,sans-serif;min-height:100vh}
+button{font:inherit;cursor:pointer;border:0}
+header{display:flex;align-items:center;justify-content:space-between;padding:18px 5%;border-bottom:1px solid #ffffff13;background:#0c0914dd;position:sticky;top:0;z-index:10;backdrop-filter:blur(14px)}
+.logo{font-size:23px;font-weight:1000}.logo span{color:var(--pink)}
+.balance{background:#211932;border:1px solid #69449b;border-radius:12px;padding:10px 15px;font-weight:900;color:var(--gold)}
+nav{display:flex;gap:8px;justify-content:center;padding:14px;flex-wrap:wrap;background:#100c1a}
+nav button,.secondary{background:#211a30;color:#cfc3e4;padding:11px 17px;border-radius:10px;font-weight:800}
+nav button.active,nav button:hover{background:linear-gradient(120deg,#8b43ed,#d14acb);color:white}
+main{max-width:1200px;margin:auto;padding:28px 22px 70px}
+.page{display:none}.page.active{display:block}
+h1{font-size:34px;margin:0 0 8px}h2{margin:0 0 15px}
+.sub{color:var(--muted);margin-bottom:25px}
+.panel{background:linear-gradient(145deg,#1b1529,#110e1b);border:1px solid #ffffff14;border-radius:18px;padding:22px;box-shadow:0 15px 45px #0004}
+.hero{padding:35px;background:linear-gradient(115deg,#32165a,#19112b 60%,#41164c);border:1px solid #a85bff55;border-radius:22px;margin-bottom:22px}
+.hero h1{font-size:42px}.hero p{color:#d4c2eb;max-width:650px;line-height:1.6}
+.primary{background:linear-gradient(110deg,#974bff,#e14bc4);color:white;padding:12px 19px;border-radius:11px;font-weight:900;box-shadow:0 5px 20px #a34aff33}
+.primary:hover{filter:brightness(1.15);transform:translateY(-1px)}
+.danger{background:#6f263e;color:white;padding:11px 17px;border-radius:10px;font-weight:900}
+.green{background:#176b49;color:#fff;padding:11px 17px;border-radius:10px;font-weight:900}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:17px}
+.pack{background:linear-gradient(145deg,#211936,#110e1c);border:1px solid #ffffff19;border-radius:17px;padding:18px;text-align:center;transition:.2s}
+.pack:hover{transform:translateY(-4px);border-color:#a85cff}
+.pack-art{height:135px;border-radius:13px;display:grid;place-items:center;font-size:65px;margin-bottom:14px;background:radial-gradient(circle,#6841a4,#25163c 65%,#151020);border:1px solid #ffffff20}
+.pack h3{margin:5px}.pack p{color:var(--muted);font-size:13px;min-height:32px}
+.price{color:var(--gold);font-weight:1000;margin:12px}
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:18px}
+.monster-card{position:relative;min-height:300px;border-radius:17px;padding:8px;background:linear-gradient(145deg,#d6b66c,#fff0b1 25%,#98733b 55%,#f6d88c);color:#1d1724;box-shadow:0 8px 22px #0007;transition:.2s;overflow:hidden}
+.monster-card:hover{transform:translateY(-5px) rotate(-1deg)}
+.monster-card:before{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 25%,#ffffff66 45%,transparent 60%);transform:translateX(-120%);animation:shine 5s infinite;pointer-events:none}
+@keyframes shine{0%,65%{transform:translateX(-120%)}85%,100%{transform:translateX(120%)}}
+.monster-card .inner{height:100%;min-height:284px;border:2px solid #6d552b;border-radius:11px;padding:9px;background:linear-gradient(160deg,#f7e9c7,#d9c9a3);position:relative}
+.card-top{display:flex;justify-content:space-between;font-weight:1000;font-size:12px}
+.card-name{font-size:17px;font-weight:1000;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.card-art{height:145px;margin:8px 0;border:3px solid #8a754c;border-radius:7px;display:grid;place-items:center;font-size:76px;background:radial-gradient(circle at 50% 35%,#fff5c9,#b7a0cc 55%,#655178);position:relative;overflow:hidden}
+.card-art:after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,#fff8 50%,transparent 68%);transform:translateX(-120%);animation:shine 4s infinite}
+.card-type{font-size:9px;font-weight:900;letter-spacing:1px;text-transform:uppercase;color:#57466a}
+.card-description{font-size:10px;line-height:1.3;min-height:27px;margin:5px 0}
+.card-stats{display:flex;justify-content:space-between;font-size:10px;font-weight:900;border-top:1px solid #9b8b6b;padding-top:6px}
+.card-value{text-align:center;font-weight:1000;font-size:12px;margin-top:6px}
+.rarity-Common{background:linear-gradient(145deg,#aab4c2,#f1f4f7,#8794a6)}
+.rarity-Uncommon{background:linear-gradient(145deg,#54b987,#d6ffe7,#23865b)}
+.rarity-Rare{background:linear-gradient(145deg,#438ee8,#d8edff,#4162b4)}
+.rarity-Epic{background:linear-gradient(145deg,#a64ce5,#f4d9ff,#7025a8)}
+.rarity-Legendary{background:linear-gradient(145deg,#ffad35,#fff1a8,#d36b12)}
+.rarity-SECRET{background:linear-gradient(145deg,#ff4fd8,#fff,#8b4dff,#54e9ff);animation:secretGlow 2s infinite alternate}
+@keyframes secretGlow{to{filter:hue-rotate(35deg) brightness(1.15)}}
+.card-actions{display:flex;gap:7px;margin-top:8px}
+.card-actions button{flex:1;padding:8px 5px;border-radius:8px;font-size:11px;font-weight:900;background:#292038;color:white}
+.card-actions .sell{background:#176b49}
+.open-area{margin-top:25px}
+.open-controls{display:flex;gap:10px;align-items:center;justify-content:center;flex-wrap:wrap;margin:18px 0}
+.open-stage{min-height:360px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;padding:22px;background:#0c0914;border:1px solid #ffffff13;border-radius:18px}
+.reveal-card{width:190px;opacity:0;transform:translateY(25px) scale(.8);animation:reveal .45s forwards}
+@keyframes reveal{to{opacity:1;transform:translateY(0) scale(1)}}
+.hidden-card{width:190px;height:290px;border-radius:16px;border:3px solid #b76aff;background:repeating-linear-gradient(45deg,#291344,#291344 10px,#3a1b59 10px,#3a1b59 20px);display:grid;place-items:center;font-size:65px;cursor:pointer}
+.hidden-card span{border:2px solid #d9aaff;border-radius:50%;padding:17px}
+.notice{color:var(--muted);font-size:13px;text-align:center}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:13px;margin:20px 0}
+.stat{background:#1b1528;border:1px solid #ffffff13;border-radius:14px;padding:17px}
+.stat strong{display:block;font-size:23px;color:var(--gold);margin-top:5px}
+.stat span{font-size:12px;color:var(--muted)}
+.collection-tools{display:flex;gap:10px;flex-wrap:wrap;margin:15px 0}
+.collection-tools input,.collection-tools select,.admin-box input{background:#211a30;color:white;border:1px solid #594373;padding:11px;border-radius:9px}
+.plinko-wrap{display:grid;grid-template-columns:minmax(0,1fr) 230px;gap:18px}
+#plinkoCanvas{width:100%;height:auto;display:block;background:radial-gradient(ellipse at top,#21143b,#0d0a16 75%);border:1px solid #6c4a9b;border-radius:16px}
+.plinko-side{display:flex;flex-direction:column;gap:13px}
+.plinko-side label{color:var(--muted);font-size:13px}
+.plinko-side select,.plinko-side input{width:100%;padding:11px;background:#211a30;color:white;border:1px solid #574071;border-radius:9px;margin-top:6px}
+.slots{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:7px}
+.slots span{text-align:center;padding:8px 1px;background:#292039;border-radius:6px;font-size:11px;font-weight:900;color:#e4d5ff}
+.result{font-weight:900;text-align:center;color:var(--gold);min-height:24px}
+.history{display:flex;gap:7px;flex-wrap:wrap}
+.history span{background:#261d38;padding:7px 10px;border-radius:8px;font-size:12px}
+.admin-box{border:1px solid #9b5cff66;background:linear-gradient(145deg,#25153b,#130e20);border-radius:15px;padding:20px;margin-top:18px}
+.admin-box input{width:180px;margin-right:8px}
+.admin-status{font-size:13px;color:var(--muted);margin-top:12px}
+footer{text-align:center;color:#756a83;padding:30px;font-size:12px}
+@media(max-width:750px){header{padding:14px 4%}.logo{font-size:18px}.plinko-wrap{grid-template-columns:1fr}.hero h1{font-size:32px}.reveal-card{width:155px}.card-art{height:125px}}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">MONSTER <span>JACKPOT</span></div>
+ <div class="balance">💰 <span id="balance">$2,000</span></div>
+</header>
+<nav>
+ <button class="active" data-page="home">Home</button>
+ <button data-page="packs">Pack Shop</button>
+ <button data-page="collection">Collection</button>
+ <button data-page="plinko">Plinko</button>
+ <button data-page="casino">Casino</button>
+ <button data-page="profile">Profile</button>
+</nav>
+<main>
+<section class="page active" id="home">
+ <div class="hero">
+  <h1>Open packs. Find legends. Get rich.</h1>
+  <p>Collect rare monsters, discover secret cards, and build the ultimate collection. Every pack has a chance to contain something incredible.</p>
+  <button class="primary" onclick="showPage('packs')">OPEN SOME PACKS →</button>
+ </div>
+ <div class="stats">
+  <div class="stat"><span>YOUR BALANCE</span><strong id="homeBalance">$2,000</strong></div>
+  <div class="stat"><span>CARDS COLLECTED</span><strong id="homeCards">0</strong></div>
+  <div class="stat"><span>PACKS OPENED</span><strong id="homePacks">0</strong></div>
+  <div class="stat"><span>PLAYER LEVEL</span><strong id="homeLevel">1</strong></div>
+ </div>
+ <div class="panel">
+  <h2>🎁 Demo bonus</h2>
+  <p class="sub">Claim a little boost to keep playing.</p>
+  <button class="green" onclick="claimBonus()">Claim $500 bonus</button>
+  <p class="notice" id="bonusMessage"></p>
+ </div>
+</section>
+
+<section class="page" id="packs">
+ <h1>Pack Shop</h1>
+ <p class="sub">Choose a pack to open and discover five monsters.</p>
+  <h2>All Packs</h2>
+ <div class="grid" id="packGrid"></div>
+ <div class="open-area panel" id="openingPanel">
+  <h2 id="openingTitle">Your pack opening</h2>
+  <p class="sub" id="openingSubtitle">Buy a pack to get started.</p>
+  <div class="open-stage" id="openStage">
+   <div class="hidden-card"><span>?</span></div>
+   <p class="notice">Your cards will appear here.</p>
+  </div>
+  <div class="open-controls" id="openControls"></div>
+  <p class="notice" id="openMessage">Reveal cards one at a time, then sell them or keep them.</p>
+ </div>
+</section>
+
+<section class="page" id="collection">
+ <h1>Your Collection</h1>
+ <p class="sub">Keep your favourites or sell cards for coins.</p>
+ <div class="stats">
+  <div class="stat"><span>TOTAL CARDS</span><strong id="collectionCount">0</strong></div>
+  <div class="stat"><span>COLLECTION VALUE</span><strong id="collectionValue">$0</strong></div>
+  <div class="stat"><span>FAVOURITES</span><strong id="favouriteCount">0</strong></div>
+ </div>
+ <div class="collection-tools">
+  <input id="cardSearch" placeholder="Search monsters..." oninput="renderCollection()">
+  <select id="rarityFilter" onchange="renderCollection()">
+   <option value="All">All rarities</option><option>Common</option><option>Uncommon</option><option>Rare</option><option>Epic</option><option>Legendary</option><option>SECRET</option>
+  </select>
+  <button class="green" onclick="sellAll()">💰 Sell All Unfavorited</button>
+ </div>
+ <div class="card-grid" id="collectionGrid"></div>
+</section>
+
+<section class="page" id="plinko">
+ <h1>Plinko</h1>
+ <p class="sub">Drop a glowing ball through the pegs and watch it bounce toward a payout slot.</p>
+ <div class="plinko-wrap">
+  <div class="panel">
+   <canvas id="plinkoCanvas" width="720" height="610"></canvas>
+   <div class="slots" id="slotLabels"></div>
+   <p class="result" id="plinkoResult">Choose your bet and drop a ball.</p>
+   <div class="history" id="plinkoHistory"></div>
+  </div>
+  <div class="panel plinko-side">
+   <div><label>Bet amount</label><input id="plinkoBet" type="number" min="1" value="100"></div>
+   <div><label>Risk level</label><select id="plinkoRisk" onchange="updatePlinkoLabels()"><option value="low">Low risk</option><option value="medium" selected>Medium risk</option><option value="high">High risk</option></select></div>
+   <div><label>Rows</label><select id="plinkoRows" onchange="buildPlinko()"><option value="10">10 rows</option><option value="12" selected>12 rows</option><option value="14">14 rows</option></select></div>
+   <button class="primary" id="dropButton" onclick="dropBall()">DROP BALL</button>
+   <p class="notice">The central slots are statistically more likely. Big edge multipliers are rare.</p>
+   <div class="stat"><span>LAST MULTIPLIER</span><strong id="lastMultiplier">—</strong></div>
+   <div class="stat"><span>LAST PAYOUT</span><strong id="lastPayout">$0</strong></div>
+  </div>
+ </div>
+</section>
+
+<section class="page" id="casino">
+ <h1>Casino</h1><p class="sub">Try your luck with fictional coins.</p>
+ <div class="grid">
+  <div class="panel">
+   <h2>🪙 Coin Flip</h2><p class="sub">Pick heads or tails. Win 2× your bet.</p>
+   <input id="coinBet" type="number" value="100" min="1" style="width:100%;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <select id="coinChoice" style="width:100%;margin-top:8px;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px"><option>Heads</option><option>Tails</option></select>
+   <button class="primary" style="margin-top:12px" onclick="coinFlip()">FLIP</button><p id="coinResult" class="result"></p>
+  </div>
+  <div class="panel">
+   <h2>🎲 Dice Roll</h2><p class="sub">Roll a 6 to win 5× your bet.</p>
+   <input id="diceBet" type="number" value="100" min="1" style="width:100%;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <button class="primary" style="margin-top:12px" onclick="diceRoll()">ROLL DICE</button><p id="diceResult" class="result"></p>
+  </div>
+  <div class="panel">
+   <h2>🍀 Lucky Number</h2><p class="sub">Choose a number from 1–10. Hit it to win 8×.</p>
+   <input id="luckyBet" type="number" value="100" min="1" style="width:100%;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <input id="luckyNumber" type="number" value="7" min="1" max="10" style="width:100%;margin-top:8px;padding:11px;background:#211a30;color:white;border:1px solid #594373;border-radius:9px">
+   <button class="primary" style="margin-top:12px" onclick="luckyRoll()">TRY YOUR LUCK</button><p id="luckyResult" class="result"></p>
+  </div>
+ </div>
+</section>
+
+<section class="page" id="profile">
+ <h1>Your Profile</h1><p class="sub">Your Monster Jackpot progress.</p>
+ <div class="stats">
+  <div class="stat"><span>LEVEL</span><strong id="profileLevel">1</strong></div>
+  <div class="stat"><span>XP</span><strong id="profileXP">0</strong></div>
+  <div class="stat"><span>PACKS OPENED</span><strong id="profilePacks">0</strong></div>
+  <div class="stat"><span>SECRET CARDS</span><strong id="profileSecrets">0</strong></div>
+ </div>
+ <div class="panel">
+  <h2>Progress</h2>
+  <div style="height:13px;background:#090711;border-radius:20px;overflow:hidden"><div id="xpBar" style="height:100%;width:0;background:linear-gradient(90deg,#974bff,#ff4fc8)"></div></div>
+  <p id="xpText" class="sub" style="margin:10px 0 0"></p>
+  <button class="green" onclick="claimBonus()">Claim $500 demo bonus</button>
+  <button class="danger" onclick="resetGame()" style="margin-left:8px">Reset game</button>
+ </div>
+
+ <div class="admin-box">
+  <h2>🔐 Admin Access</h2>
+  <p class="sub">Enter the admin password to unlock infinite in-game money.</p>
+  <input id="adminPassword" type="password" placeholder="Admin password">
+  <button class="primary" onclick="unlockAdmin()">UNLOCK</button>
+  <div class="admin-status" id="adminStatus">Admin mode is locked.</div>
+ </div>
+</section>
+</main>
+<footer>MONSTER JACKPOT · Fictional coins only · Progress saves in this browser</footer>
+
+<script>
+const $=id=>document.getElementById(id);
+const money=n=>"$"+Math.floor(n).toLocaleString("en-US");
+
+const packs=[
+ {name:"Starter Pack",price:100,icon:"🌱",desc:"A little taste of monster collecting."},
+ {name:"Forest Pack",price:250,icon:"🌲",desc:"Creatures from enchanted woods."},
+ {name:"Ocean Pack",price:500,icon:"🌊",desc:"Deep sea monsters and mysteries."},
+ {name:"Volcano Pack",price:1000,icon:"🌋",desc:"Fiery creatures with big power."},
+ {name:"Shadow Pack",price:2500,icon:"🌑",desc:"Dark and mysterious monsters."},
+ {name:"Crystal Pack",price:5000,icon:"💎",desc:"Shimmering creatures and rare finds."},
+ {name:"Galaxy Pack",price:10000,icon:"🌌",desc:"Monsters from beyond the stars."},
+ {name:"Royal Pack",price:25000,icon:"👑",desc:"Only the finest monsters."},
+ {name:"Mythic Pack",price:50000,icon:"🐉",desc:"Powerful creatures of legend."},
+ {name:"Ancient Pack",price:100000,icon:"🏺",desc:"Monsters from another age."},
+ {name:"Phantom Pack",price:250000,icon:"👻",desc:"Ghostly and elusive creatures."},
+ {name:"Titan Pack",price:500000,icon:"🗿",desc:"Massive monsters with huge value."},
+ {name:"Celestial Pack",price:1000000,icon:"☄️",desc:"A collection of cosmic wonders."},
+ {name:"Infinity Pack",price:5000000,icon:"♾️",desc:"The rarest ordinary pack tier."},
+ {name:"Overlord Pack",price:10000000,icon:"⚔️",desc:"A pack fit for a monster king."},
+ {name:"Eternal Pack",price:50000000,icon:"🔮",desc:"Beyond legendary."},
+ {name:"Godlike Pack",price:100000000,icon:"⚡",desc:"Power that bends reality."},
+ {name:"Universe Pack",price:500000000,icon:"🪐",desc:"An entire universe in a pack."},
+ {name:"INFINITE PACK",price:1000000000,icon:"✨",desc:"The ultimate pack."},
+ {name:"Multiverse Pack",price:2500000000,icon:"🌐",desc:"Five dimensions of monster power."},
+ {name:"Black Hole Pack",price:5000000000,icon:"🕳️",desc:"A pack that swallows ordinary luck."},
+ {name:"Overdrive Pack",price:10000000000,icon:"🚀",desc:"Beyond the limits of the known universe."},
+ {name:"Quantum Pack",price:50000000000,icon:"⚛️",desc:"Monsters from impossible timelines."},
+ {name:"Reality Breaker Pack",price:100000000000,icon:"💥",desc:"The rules no longer apply."},
+ {name:"Multiversal King Pack",price:500000000000,icon:"👑",desc:"A pack for the ultimate collector."},
+ {name:"ABSOLUTE PACK",price:1000000000000,icon:"🌟",desc:"The most expensive pack in the shop."}
+];
+
+const monsters=[
+ ["Mossling","🌿","Common","Forest","A tiny sprout that loves sunlight.",40,25],
+ ["Ember Pup","🐶","Common","Fire","A playful pup with a warm little flame.",55,30],
+ ["Bubblefin","🐟","Common","Water","A cheerful swimmer that blows bubbles.",48,28],
+ ["Pebbleback","🐢","Common","Earth","A sturdy little tank with a rocky shell.",62,35],
+ ["Cloudlet","☁️","Common","Air","A fluffy creature that floats around.",35,24],
+ ["Frostbit","🧊","Uncommon","Ice","A chilly monster with a frosty attitude.",90,80],
+ ["Voltkit","🐱","Uncommon","Electric","A speedy kitten charged with electricity.",95,90],
+ ["Vinewhip","🌱","Uncommon","Nature","Its vines can reach farther than you think.",100,95],
+ ["Coralix","🪸","Uncommon","Water","A colourful guardian of the reef.",105,100],
+ ["Cinderhorn","🦏","Rare","Fire","A horned beast born in a volcano.",160,250],
+ ["Moonfang","🐺","Rare","Shadow","A wolf that hunts beneath the moon.",170,300],
+ ["Stormwing","🦅","Rare","Air","Its wings summon thunderclouds.",180,350],
+ ["Glacier Golem","⛄","Rare","Ice","An ancient giant made of living ice.",190,400],
+ ["Nebulisk","🦎","Epic","Cosmic","A cosmic lizard that bends starlight.",270,1200],
+ ["Phantomore","👻","Epic","Ghost","A spirit that slips between dimensions.",285,1500],
+ ["Magma Rex","🦖","Epic","Fire","A prehistoric ruler of molten rock.",300,1800],
+ ["Astral Serpent","🐍","Legendary","Cosmic","A serpent said to circle the universe.",450,12000],
+ ["Solar Phoenix","🔥","Legendary","Fire","It rises again whenever it falls.",500,16000],
+ ["Void Emperor","👑","Legendary","Shadow","The ruler of a kingdom beyond reality.",550,22000],
+ ["OMEGA DRAGON","🐲","SECRET","Unknown","A secret monster of unbelievable power.",999,1000000000],
+ ["GLITCH BEAST","👾","SECRET","Unknown","A creature that escaped the game's code.",999,1000000000],
+ ["THE UNKNOWN","❔","SECRET","Unknown","Nobody knows where this monster came from.",999,1000000000],
+ ["COSMIC ZERO","🌠","SECRET","Unknown","The rarest mystery in the entire universe.",999,1000000000]
+];
+
+const rarityWeights=[
+ {name:"Common",weight:52},{name:"Uncommon",weight:25},
+ {name:"Rare",weight:14},{name:"Epic",weight:6.5},
+ {name:"Legendary",weight:2.4999999},{name:"SECRET",weight:0.0000001}
+];
+
+let state=loadState();
+let pendingCards=[],revealIndex=0,currentPack=null;
+let plinkoBusy=false;
+
+function loadState(){
+ try{
+  const s=JSON.parse(localStorage.getItem("monsterJackpotV2"));
+  if(s&&Array.isArray(s.cards))return {...{balance:2000,cards:[],packsOpened:0,xp:0,bonusClaimed:false,infiniteMoney:false},...s};
+ }catch(e){}
+ return {balance:2000,cards:[],packsOpened:0,xp:0,bonusClaimed:false,infiniteMoney:false};
+}
+function save(){localStorage.setItem("monsterJackpotV2",JSON.stringify(state));updateUI()}
+function displayBalance(){return state.infiniteMoney?"∞ INFINITE":money(state.balance)}
+function updateUI(){
+ $("balance").textContent=displayBalance();
+ $("homeBalance").textContent=displayBalance();
+ $("homeCards").textContent=state.cards.length;
+ $("homePacks").textContent=state.packsOpened;
+ const level=Math.floor(state.xp/100)+1,progress=state.xp%100;
+ $("homeLevel").textContent=level;
+ $("profileLevel").textContent=level;
+ $("profileXP").textContent=state.xp;
+ $("profilePacks").textContent=state.packsOpened;
+ $("profileSecrets").textContent=state.cards.filter(c=>c.rarity==="SECRET").length;
+ $("xpBar").style.width=progress+"%";
+ $("xpText").textContent=progress+" / 100 XP to level "+(level+1);
+ $("collectionCount").textContent=state.cards.length;
+ $("collectionValue").textContent=money(state.cards.reduce((a,c)=>a+c.value,0));
+ $("favouriteCount").textContent=state.cards.filter(c=>c.favorite).length;
+ $("adminStatus").textContent=state.infiniteMoney?"✅ ADMIN MODE ACTIVE — INFINITE MONEY":"Admin mode is locked.";
+}
+function showPage(page){
+ document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+ document.querySelectorAll("nav button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+ $(page).classList.add("active");
+ if(page==="collection")renderCollection();
+ if(page==="plinko")drawPlinko();
+}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>showPage(b.dataset.page)));
+
+function renderPacks(){
+ $("packGrid").innerHTML=packs.map((p,i)=>`
+ <div class="pack"><div class="pack-art">${p.icon}</div><h3>${p.name}</h3><p>${p.desc}</p>
+ <div class="price">${money(p.price)}</div><button class="primary" onclick="buyPack(${i})">BUY PACK</button></div>`).join("");
+}
+
+function weightedRarity(){
+ const r=Math.random()*100;let sum=0;
+ for(const item of rarityWeights){sum+=item.weight;if(r<sum)return item.name}
+ return "Common";
+}
+function createCard(){
+ const rarity=weightedRarity();
+ const pool=monsters.filter(m=>m[2]===rarity);
+ const m=pool[Math.floor(Math.random()*pool.length)];
+ let value=m[6];
+ if(currentPack&&currentPack.price>=1000000&&rarity!=="SECRET")
+  value=Math.round(value*(1+Math.log10(currentPack.price/1000000+1)*.4));
+ return {id:Date.now().toString(36)+Math.random().toString(36).slice(2),name:m[0],emoji:m[1],rarity:m[2],type:m[3],description:m[4],hp:m[5],value,attack:Math.round(m[5]*.7),favorite:false};
+}
+function buyPack(index){
+ const pack=packs[index];
+ if(!pack)return;
+ if(!state.infiniteMoney&&state.balance<pack.price){alert("Not enough coins for this pack!");return}
+ if(!state.infiniteMoney)state.balance-=pack.price;
+ currentPack=pack;pendingCards=[];
+ for(let i=0;i<5;i++)pendingCards.push(createCard());
+ state.packsOpened++;state.xp+=15;revealIndex=0;
+ $("openingTitle").textContent=pack.name+" opening";
+ $("openingSubtitle").textContent="You got 5 cards! Tap each card to reveal it.";
+ $("openStage").innerHTML=pendingCards.map((c,i)=>`<div class="hidden-card" id="back${i}" onclick="revealCard(${i})"><span>?</span></div>`).join("");
+ $("openControls").innerHTML=`<button class="primary" onclick="revealNext()">REVEAL NEXT CARD</button>`;
+ $("openMessage").textContent="Your cards are waiting. Reveal them one by one!";
+ save();
+ $("openingPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function revealCard(i){
+ const el=$("back"+i);if(!el||el.dataset.revealed)return;
+ el.dataset.revealed="1";
+ const c=pendingCards[i];
+ el.outerHTML=`<div class="reveal-card" id="revealed${i}">${cardHTML(c,false)}</div>`;
+ revealIndex++;
+ if(revealIndex===5)finishOpening();
+}
+function revealNext(){
+ const i=pendingCards.findIndex((c,index)=>$("back"+index)&&!$("back"+index).dataset.revealed);
+ if(i>=0)revealCard(i);
+}
+function finishOpening(){
+ $("openingSubtitle").textContent="All five cards revealed! Add them to your collection or sell them.";
+ $("openControls").innerHTML=`<button class="green" onclick="collectOpened()">KEEP ALL CARDS</button><button class="danger" onclick="sellOpened()">💰 SELL ALL 5 CARDS</button>`;
+ $("openMessage").textContent="Sell all to instantly convert every card into coins, or keep them in your collection.";
+}
+function cardHTML(c,actions=true){
+ return `<div class="monster-card rarity-${c.rarity}"><div class="inner">
+ <div class="card-top"><span>${c.type.toUpperCase()} MONSTER</span><span>HP ${c.hp}</span></div>
+ <div class="card-name">${c.name}</div><div class="card-art">${c.emoji}</div>
+ <div class="card-type">${c.rarity} · MONSTER CARD</div>
+ <div class="card-description">${c.description}</div>
+ <div class="card-stats"><span>⚔ ATK ${c.attack}</span><span>✦ ${c.rarity}</span></div>
+ <div class="card-value">VALUE: ${money(c.value)}</div></div></div>
+ ${actions?`<div class="card-actions"><button class="sell" onclick="sellCard('${c.id}')">SELL</button><button onclick="toggleFavorite('${c.id}')">${c.favorite?"★ SAVED":"☆ SAVE"}</button></div>`:""}`;
+}
+function collectOpened(){
+ state.cards.push(...pendingCards);pendingCards=[];save();
+ $("openControls").innerHTML=`<button class="primary" onclick="showPage('collection')">VIEW COLLECTION</button><button class="secondary" onclick="showPage('packs')">OPEN ANOTHER PACK</button>`;
+ $("openMessage").textContent="Cards added to your collection!";
+}
+function sellOpened(){
+ if(!pendingCards.length)return;
+ const total=pendingCards.reduce((a,c)=>a+c.value,0);
+ if(!state.infiniteMoney)state.balance+=total;
+ pendingCards=[];save();
+ $("openStage").innerHTML=`<div style="text-align:center"><div style="font-size:70px">💰</div><h2>CARDS SOLD!</h2><h2 style="color:var(--green)">+${money(total)}</h2></div>`;
+ $("openControls").innerHTML=`<button class="primary" onclick="showPage('packs')">OPEN ANOTHER PACK</button>`;
+ $("openMessage").textContent="All five cards have been sold.";
+}
+function renderCollection(){
+ const search=$("cardSearch").value.toLowerCase(),rarity=$("rarityFilter").value;
+ const list=state.cards.filter(c=>(rarity==="All"||c.rarity===rarity)&&c.name.toLowerCase().includes(search));
+ $("collectionGrid").innerHTML=list.length?list.map(c=>cardHTML(c)).join(""):`<p class="notice">No cards found. Open some packs to build your collection!</p>`;
+}
+function sellCard(id){
+ const i=state.cards.findIndex(c=>c.id===id);if(i<0)return;
+ const [c]=state.cards.splice(i,1);
+ if(!state.infiniteMoney)state.balance+=c.value;
+ save();renderCollection();
+}
+function toggleFavorite(id){
+ const c=state.cards.find(c=>c.id===id);if(!c)return;
+ c.favorite=!c.favorite;save();renderCollection();
+}
+function sellAll(){
+ const sell=state.cards.filter(c=>!c.favorite);
+ if(!sell.length){alert("No unfavorited cards to sell!");return}
+ const total=sell.reduce((a,c)=>a+c.value,0);
+ if(!confirm(`Sell ${sell.length} cards for ${money(total)}? Favourited cards will be kept.`))return;
+ state.cards=state.cards.filter(c=>c.favorite);
+ if(!state.infiniteMoney)state.balance+=total;
+ save();renderCollection();
+}
+function claimBonus(){
+ if(state.bonusClaimed){$("bonusMessage").textContent="You've already claimed your demo bonus.";return}
+ if(!state.infiniteMoney)state.balance+=500;
+ state.bonusClaimed=true;save();$("bonusMessage").textContent="+$500 bonus claimed!";
+}
+function unlockAdmin(){
+ const password=$("adminPassword").value;
+ if(password==="0214"){
+  state.infiniteMoney=true;
+  save();
+  $("adminStatus").textContent="✅ ADMIN MODE ACTIVE — INFINITE MONEY UNLOCKED!";
+  $("adminPassword").value="";
+ }else{
+  $("adminStatus").textContent="❌ Incorrect password.";
+ }
+}
+function betFrom(id){
+ const v=Math.floor(Number($(id).value));
+ if(!Number.isFinite(v)||v<1||(!state.infiniteMoney&&v>state.balance)){alert("Enter a valid bet within your balance.");return null}
+ if(!state.infiniteMoney)state.balance-=v;
+ save();return v;
+}
+function coinFlip(){
+ const b=betFrom("coinBet");if(b===null)return;
+ const result=Math.random()<.5?"Heads":"Tails",win=result===$("coinChoice").value;
+ if(win&&!state.infiniteMoney)state.balance+=b*2;
+ save();$("coinResult").textContent=`${result}! ${win?"You won "+money(b*2-b)+" profit!":"You lost "+money(b)+"."}`;
+}
+function diceRoll(){
+ const b=betFrom("diceBet");if(b===null)return;
+ const n=1+Math.floor(Math.random()*6),win=n===6;
+ if(win&&!state.infiniteMoney)state.balance+=b*5;
+ save();$("diceResult").textContent=`You rolled ${n}. ${win?"JACKPOT! You won "+money(b*5)+"!":"Better luck next time!"}`;
+}
+function luckyRoll(){
+ const b=betFrom("luckyBet");if(b===null)return;
+ const chosen=Math.floor(Number($("luckyNumber").value));
+ if(chosen<1||chosen>10||!Number.isInteger(chosen)){
+  if(!state.infiniteMoney)state.balance+=b;save();alert("Choose a number from 1 to 10.");return;
+ }
+ const n=1+Math.floor(Math.random()*10),win=n===chosen;
+ if(win&&!state.infiniteMoney)state.balance+=b*8;
+ save();$("luckyResult").textContent=`Number ${n}! ${win?"You won "+money(b*8)+"!":"Not this time."}`;
+}
+function resetGame(){
+ if(!confirm("Reset your balance and collection? This cannot be undone."))return;
+ localStorage.removeItem("monsterJackpotV2");
+ state={balance:2000,cards:[],packsOpened:0,xp:0,bonusClaimed:false,infiniteMoney:false};
+ pendingCards=[];save();renderCollection();
+}
+
+/* PLINKO — original board drawing and bouncing physics retained.
+   Only the payout multipliers have been changed. */
+const canvas=$("plinkoCanvas"),ctx=canvas.getContext("2d");
+let pegs=[],balls=[];
+const riskMultipliers={
+ low:[3,1.5,1.1,.9,.8,.9,1.1,1.5,3],
+ medium:[10,3,1.5,.7,.2,.7,1.5,3,10],
+ high:[20,5,1.5,.3,.05,.3,1.5,5,20]
+};
+function boardGeometry(){
+ const rows=Number($("plinkoRows").value),left=65,right=655,top=65,bottom=495;
+ const dx=(right-left)/(rows+1),dy=(bottom-top)/(rows+1);
+ return {rows,left,right,top,bottom,dx,dy};
+}
+function buildPlinko(){
+ const g=boardGeometry();pegs=[];
+ for(let r=0;r<g.rows;r++){
+  const count=r+3,spacing=(g.right-g.left)/(g.rows+2);
+  const rowWidth=(count-1)*spacing;
+  const start=(canvas.width-rowWidth)/2;
+  for(let c=0;c<count;c++)pegs.push({x:start+c*spacing,y:g.top+r*g.dy});
+ }
+ updatePlinkoLabels();drawPlinko();
+}
+function updatePlinkoLabels(){
+ const mult=riskMultipliers[$("plinkoRisk").value];
+ $("slotLabels").innerHTML=mult.map(m=>`<span>${m}×</span>`).join("");
+}
+function drawPlinko(){
+ if(!ctx)return;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ const g=boardGeometry();
+ ctx.strokeStyle="#7c54aa";ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(45,35);ctx.lineTo(45,520);ctx.moveTo(675,35);ctx.lineTo(675,520);ctx.stroke();
+ pegs.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,5,0,Math.PI*2);ctx.fillStyle="#d8b9ff";ctx.shadowColor="#a75cff";ctx.shadowBlur=8;ctx.fill();ctx.shadowBlur=0});
+ const binW=590/9;
+ for(let i=0;i<=9;i++){ctx.fillStyle="#9870c4";ctx.fillRect(65+i*binW,520,2,58)}
+ const mult=riskMultipliers[$("plinkoRisk").value];
+ mult.forEach((m,i)=>{ctx.fillStyle=m>=8?"#ffb84d":m>=2?"#62e7a6":"#d8c9ed";ctx.font="bold 15px Arial";ctx.textAlign="center";ctx.fillText(m+"×",65+(i+.5)*binW,552)});
+ balls.forEach(b=>{ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fillStyle="#ffd66b";ctx.shadowColor="#ffad36";ctx.shadowBlur=12;ctx.fill();ctx.shadowBlur=0});
+}
+function dropBall(){
+ if(plinkoBusy)return;
+ const bet=Math.floor(Number($("plinkoBet").value));
+ if(!Number.isFinite(bet)||bet<1||(!state.infiniteMoney&&bet>state.balance)){alert("Enter a valid bet within your balance.");return}
+ if(!state.infiniteMoney)state.balance-=bet;
+ save();
+ plinkoBusy=true;$("dropButton").disabled=true;
+ const ball={x:360+(Math.random()-.5)*12,y:25,vx:(Math.random()-.5)*1.5,vy:0,r:8,bet,done:false};
+ balls.push(ball);
+ let last=performance.now();
+ function animate(now){
+  const dt=Math.min((now-last)/16.67,1.5);last=now;
+  const g=boardGeometry();
+  ball.vy+=.19*dt;ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
+  if(ball.x<55+ball.r){ball.x=55+ball.r;ball.vx=Math.abs(ball.vx)*.72}
+  if(ball.x>665-ball.r){ball.x=665-ball.r;ball.vx=-Math.abs(ball.vx)*.72}
+  for(const p of pegs){
+   const dx=ball.x-p.x,dy=ball.y-p.y,dist=Math.hypot(dx,dy),min=ball.r+5;
+   if(dist<min && dist>0){
+    const nx=dx/dist,ny=dy/dist;
+    ball.x=p.x+nx*min;ball.y=p.y+ny*min;
+    const dot=ball.vx*nx+ball.vy*ny;
+    if(dot<0){ball.vx-=1.55*dot*nx;ball.vy-=1.55*dot*ny}
+    ball.vx+=((Math.random()-.5)*.65);
+   }
+  }
+  ball.vx*=.998;ball.vy=Math.min(ball.vy,8);
+  drawPlinko();
+  if(ball.y>=510){
+   const binW=590/9,index=Math.max(0,Math.min(8,Math.floor((ball.x-65)/binW)));
+   const mult=riskMultipliers[$("plinkoRisk").value][index];
+   const payout=Math.floor(bet*mult);
+   if(!state.infiniteMoney)state.balance+=payout;
+   save();
+   $("lastMultiplier").textContent=mult+"×";$("lastPayout").textContent=money(payout);
+   $("plinkoResult").textContent=`Landed in ${mult}× — payout ${money(payout)}!`;
+   const h=document.createElement("span");h.textContent=mult+"× · "+money(payout);$("plinkoHistory").prepend(h);
+   if($("plinkoHistory").children.length>8)$("plinkoHistory").lastChild.remove();
+   ball.done=true;balls=balls.filter(x=>!x.done);plinkoBusy=false;$("dropButton").disabled=false;drawPlinko();return;
+  }
+  requestAnimationFrame(animate);
+ }
+ requestAnimationFrame(animate);
+}
+
+renderPacks();
+buildPlinko();
+updateUI();
+</script>
+</body>
+</html>
